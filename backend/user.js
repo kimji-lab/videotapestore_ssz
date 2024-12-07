@@ -7,17 +7,19 @@ var database = require('./database.js')
 const { authenticateToken } = require('./middleware.js')
 
 router.post('/signup', async (req,res) => {
-    const {username, email, password} = req.body
+    const {username, email, password, roles} = req.body
 
     if(!username || !email || !password) {
         return res.status(400).json({message: 'Data belum terisi seluruhnya'})
     }
 
+    const userRole = roles === 'admin' ? 'admin' : 'user'
+
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    var sqlQuery = 'INSERT INTO users (username, email, password) VALUES (?,?,?)'
+    var sqlQuery = 'INSERT INTO users (username, email, password, roles) VALUES (?,?,?,?)'
 
-    database.query(sqlQuery, [username, email, hashedPassword], function(error,data,fields) {
+    database.query(sqlQuery, [username, email, hashedPassword, userRole], function(error,data,fields) {
         if(error) {
             return res.status(500).json({message: error.message})
         } else {
