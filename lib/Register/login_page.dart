@@ -14,8 +14,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
   final storage = const FlutterSecureStorage();
 
   bool _isPasswordVisible = false;
@@ -41,9 +41,10 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         String token = data['token'];
+        String role = data['role'];
 
         await storage.write(key: 'jwt_token', value: token);
-        await storage.write(key: 'username', value: _usernameController.text);
+        await storage.write(key: 'role', value: role);
 
         Navigator.pushReplacement(
           context,
@@ -57,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Gagal terhubung ke server. Pastikan backend berjalan.';
+        _errorMessage = 'Server belum aktif';
       });
     } finally {
       setState(() {
@@ -160,7 +161,8 @@ class _LoginPageState extends State<LoginPage> {
                     padding: const EdgeInsets.all(15),
                     margin: const EdgeInsets.symmetric(horizontal: 25),
                     decoration: BoxDecoration(
-                        color: _isLoading ? Colors.grey : const Color(0xFF0166FF),
+                        color:
+                            _isLoading ? Colors.grey : const Color(0xFF0166FF),
                         borderRadius: BorderRadius.circular(20)),
                     child: Center(
                       child: _isLoading
@@ -220,7 +222,8 @@ class _LoginPageState extends State<LoginPage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const SignUp()),
+                          MaterialPageRoute(
+                              builder: (context) => const SignUp()),
                         );
                       },
                       child: const Text(

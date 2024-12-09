@@ -3,7 +3,7 @@ const router = express.Router()
 const bcrypt = require('bcrypt')
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
-var database = require('./database.js')
+const database = require('./database.js')
 const { authenticateToken } = require('./middleware.js')
 
 router.post('/signup', async (req,res) => {
@@ -17,13 +17,13 @@ router.post('/signup', async (req,res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    var sqlQuery = 'INSERT INTO users (username, email, password, roles) VALUES (?,?,?,?)'
+    const sqlQuery = 'INSERT INTO users (username, email, password, roles) VALUES (?,?,?,?)'
 
-    database.query(sqlQuery, [username, email, hashedPassword, userRole], function(error,data,fields) {
-        if(error) {
-            return res.status(500).json({message: error.message})
+    database.query(sqlQuery, [username, email, hashedPassword, userRole], function(err,data,fields) {
+        if(err) {
+            return res.status(500).json({message: err.message})
         } else {
-            return res.status(201).json({message: 'Sign up successful'})
+            return res.status(201).json({message: 'Sign up berhasil'})
         }
     })
 })
@@ -35,16 +35,17 @@ router.post('/signin', async (req,res) => {
         return res.status(400).json({message: 'Data belum terisi seluruhnya'})
     }
 
-    var sqlQuery = 'SELECT * FROM users WHERE username = ?'
+    const sqlQuery = 'SELECT * FROM users WHERE username = ?'
 
-    database.query(sqlQuery, [username], async function(err, data, fields) {
+    database.query(sqlQuery, [username], async (err, results) => {
         if(err) {
             return res.status(500).json({message : err.message})
-        } if(data.length === 0) {
+        } 
+        if(results.length === 0) {
             return res.status(404).json({message: 'User tidak ditemukan'})
         } 
 
-        const user = data[0]
+        const user = results[0]
         const comparePassword =  await bcrypt.compare(password, user.password)
 
         if(!comparePassword) {
@@ -52,11 +53,9 @@ router.post('/signin', async (req,res) => {
         }
         
         delete user.password
-
-        const dataUser = {id: user.id, username: user.username, email: user.email}
-
-        const token = jwt.sign(dataUser, process.env.TOKEN, {expiresIn: '1h'})
-        return res.status(200).json({success: 'true', message: 'Sign in berhasil', token})
+        
+        const token = jwt.sign({id: user.id, username: user.username, role: user.roles}, process.env.TOKEN, {expiresIn: '1h'})
+        return res.status(200).json({token, role: user.roles})
 
     })
 })
