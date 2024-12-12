@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import 'package:flutter_sign_page/Register/signup_page.dart';
 import 'package:flutter_sign_page/Home/home_page.dart';
+import 'package:flutter_sign_page/Register/extra.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -30,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:3000/user/signin'),
+        Uri.parse('http://10.0.2.2:3000/user/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'username': _usernameController.text,
@@ -181,7 +182,9 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        GoogleAuth.googleSignIn();
+                      },
                       child: Container(
                         width: 150,
                         height: 50,

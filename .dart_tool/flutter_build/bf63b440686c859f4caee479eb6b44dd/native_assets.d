@@ -1,0 +1,1 @@
+ /Users/rizkiramadhan/Documents/flutter\ mcc\ project/videotapestore_ssz/.dart_tool/flutter_build/bf63b440686c859f4caee479eb6b44dd/native_assets.yaml: 

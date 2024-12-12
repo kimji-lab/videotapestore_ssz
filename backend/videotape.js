@@ -22,7 +22,7 @@ router.post('/videotapes/create', (req,res) => {
 })
 
 //read
-router.post('/videotapes/read', (req,res) => {
+router.get('/videotapes/read', (req,res) => {
     const videoTapeId = req.body.videoTapeId
 
     const sqlQuery = 'SELECT * FROM videotape WHERE videoTapeId = ?'
@@ -39,7 +39,7 @@ router.post('/videotapes/read', (req,res) => {
 })
 
 //update
-router.post('/videotapes/update', (req,res) => {
+router.get('/videotapes/update', (req,res) => {
     const {videoTapeId,title, price, description, genreId, tapeLevel, imagePath} = req.body
 
     const sqlQuery = 'UPDATE videotape SET title = ?, price = ?, description = ?, genreId = ?, tapeLevel = ?, imagePath = ? WHERE videoTapeId = ?'
@@ -55,7 +55,7 @@ router.post('/videotapes/update', (req,res) => {
 })
 
 //delete
-router.post('/videotapes/delete', (req,res) => {
+router.get('/videotapes/delete', (req,res) => {
     const videoTapeId = req.body.videoTapeId
 
     const sqlQuery = 'DELETE FROM videotape WHERE videoTapeId = ?'

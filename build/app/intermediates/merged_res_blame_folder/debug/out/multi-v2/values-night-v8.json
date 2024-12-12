@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.flutter_sign_page.app-mergeDebugResources-24:/values-night-v8/values-night-v8.xml",
+            "outputFile": "com.example.flutter_sign_page.app-mergeDebugResources-26:/values-night-v8/values-night-v8.xml",
             "map": [
                 {
-                    "source": "/Users/rizkiramadhan/Documents/flutter mcc project/flutter_sign_page/android/app/src/main/res/values-night/styles.xml",
+                    "source": "/Users/rizkiramadhan/Documents/flutter mcc project/videotapestore_ssz/android/app/src/main/res/values-night/styles.xml",
                     "from": {
                         "startLines": "3,14",
                         "startColumns": "4,4",

@@ -20,7 +20,6 @@ class _SignUpState extends State<SignUp> {
   bool _isLoading = false;
   String? _errorMessage;
 
-  // Fungsi untuk register ke server
   Future<void> _signUp() async {
     setState(() {
       _isLoading = true;
@@ -29,8 +28,7 @@ class _SignUpState extends State<SignUp> {
 
     try {
       final response = await http.post(
-        Uri.parse(
-            'http://localhost:3000/user/signup'), // Ganti dengan URL backend Anda
+        Uri.parse('http://10.0.2.2:3000/user/signup'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'username': _usernameController.text,
@@ -40,7 +38,6 @@ class _SignUpState extends State<SignUp> {
       );
 
       if (response.statusCode == 201) {
-        // Pendaftaran berhasil
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Pendaftaran berhasil!')),
         );
@@ -50,7 +47,6 @@ class _SignUpState extends State<SignUp> {
           MaterialPageRoute(builder: (context) => HomePage()),
         );
       } else {
-        // Tampilkan error dari backend
         final data = jsonDecode(response.body);
         setState(() {
           _errorMessage = data['message'] ?? 'Terjadi kesalahan.';
