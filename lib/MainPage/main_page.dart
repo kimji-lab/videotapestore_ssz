@@ -1,41 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'Home/home_page.dart';
-import 'Profile/profile_page.dart';
-import 'Store/store_page.dart';
-import 'Wishlist/wishlist_page.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_sign_page/Profile/profile_page.dart';
+import 'package:flutter_sign_page/Store/store_page.dart';
+import 'package:flutter_sign_page/Wishlist/wishlist_page.dart';
 
 class MainPage extends StatefulWidget {
   @override
-  _MainPageState createState() => _MainPageState();
+  MainPageState createState() => MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
+  final List<Map<String, dynamic>> _wishlist = [];
+  final List<Widget> _pages = [];
+  String userRole = '';
+  final storage = const FlutterSecureStorage();
 
-  final List<Widget> _pages = [
-    HomePage(),  //pergi ke halaman home
-    StorePage(),  //pergi ke halaman store
-    WishlistPage(),  //pergi ke halaman wishtlist
-    ProfilePage(),  //pergi ke halaman profile
-  ];
-
-  void _onItemTapped(int index) {
+  void _addToWishlist(Map<String, dynamic> item) {
     setState(() {
-      _selectedIndex = index;
+      if (!_wishlist
+          .any((element) => element['videoTapeId'] == item['videoTapeId'])) {
+        _wishlist.add(item); // Tambahkan item jika belum ada di wishlist
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${item['name']} added to wishlist!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${item['name']} is already in wishlist!')),
+        );
+      }
+    });
+  }
+
+ @override
+  void initState() {
+    super.initState();
+    _initializePages();
+  }
+
+  Future<void> _initializePages() async {
+    // Membaca role dari FlutterSecureStorage
+    String? role = await storage.read(key: 'role');
+    setState(() {
+      userRole = role ?? '';
+      _pages.addAll([
+        StorePage(
+          addToWishlist: _addToWishlist,
+          wishlist: _wishlist,
+          userRole: userRole,
+        ), // halaman store
+        WishlistPage(wishlist: _wishlist), // halaman wishlist
+        ProfilePage(), // halaman profile
+      ]);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("SSZ"),
-      ),
-
       body: _pages[_selectedIndex],
       bottomNavigationBar: CurvedNavigationBar(
-
         //tampilan bottom navigation bar
         backgroundColor: Colors.white,
         color: Colors.blue,
@@ -46,7 +71,6 @@ class _MainPageState extends State<MainPage> {
         //Icon bottom navigation bar
         index: _selectedIndex,
         items: <Widget>[
-          Icon(Icons.home, size: 30, color: Colors.white),
           Icon(Icons.store, size: 30, color: Colors.white),
           Icon(Icons.favorite, size: 30, color: Colors.white),
           Icon(Icons.person, size: 30, color: Colors.white),

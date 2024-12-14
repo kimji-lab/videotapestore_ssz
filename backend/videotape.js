@@ -3,8 +3,27 @@ const mysql2 = require('mysql2')
 const path = require('path')
 const database = require('./database.js')
 const { route } = require('./user.js')
+const multer = require('multer')
 
 const router = express.Router()
+//buat store image
+const storage = multer.diskStorage({
+    destination: function(req,file,cb) {
+        cb(null, 'backend/images_videotape/')
+    },
+    filename: function(req,file,cb) {
+        cb(null, Date.now() + path.extname(file.originalname))
+    }
+})
+
+const upload = multer({storage})
+//buat ngambil image
+router.post('/videotapes/image_upload', upload.single('image'), (req,res) => {
+    if(!req.file) {
+        return res.status(400).json({message: err.message})
+    }
+    res.send({imagePath: `/backend/images_videotape/${req.file.filename}`})
+})
 
 //create / insert
 router.post('/videotapes/create', (req,res) => {

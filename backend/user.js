@@ -55,7 +55,7 @@ router.post('/signin', async (req,res) => {
         delete user.password
         
         const token = jwt.sign({id: user.id, username: user.username, role: user.roles}, process.env.TOKEN, {expiresIn: '1h'})
-        return res.status(200).json({token, role: user.roles})
+        return res.status(200).json({token, role: user.roles, username: user.username})
 
     })
 })

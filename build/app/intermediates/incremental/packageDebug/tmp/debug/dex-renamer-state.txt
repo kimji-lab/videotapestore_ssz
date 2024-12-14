@@ -1,4 +1,4 @@
-#Thu Dec 12 21:40:40 WIB 2024
+#Fri Dec 13 20:36:23 WIB 2024
 base.0=/Users/rizkiramadhan/Documents/flutter mcc project/videotapestore_ssz/build/app/intermediates/dex/debug/mergeExtDexDebug/classes.dex
 base.1=/Users/rizkiramadhan/Documents/flutter mcc project/videotapestore_ssz/build/app/intermediates/dex/debug/mergeLibDexDebug/0/classes.dex
 base.2=/Users/rizkiramadhan/Documents/flutter mcc project/videotapestore_ssz/build/app/intermediates/dex/debug/mergeProjectDexDebug/0/classes.dex

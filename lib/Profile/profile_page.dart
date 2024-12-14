@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_sign_page/Register/login_page.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -16,19 +17,27 @@ class _ProfilePageState extends State<ProfilePage> {
     _loadUserData();
   }
 
-  // Fungsi untuk memuat data pengguna dari secure storage
   Future<void> _loadUserData() async {
-    String? username = await storage.read(key: 'username'); // Ambil username dari secure storage
+    String? username = await storage.read(key: 'username');
     setState(() {
-      _username = username ?? 'Guest'; // Default jika username tidak ditemukan
+      _username = username ?? 'Guest';
     });
+  }
+
+  Future<void> _logout() async {
+    await storage.deleteAll(); // Hapus semua data tersimpan
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+      (route) => false, // Menghapus semua riwayat navigasi
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile Page'),
+        title: const Text('Profile Page'),
         backgroundColor: Colors.white,
       ),
       backgroundColor: Colors.white,
@@ -38,7 +47,7 @@ class _ProfilePageState extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Gambar Profil
-            CircleAvatar(
+            const CircleAvatar(
               radius: 50,
               backgroundColor: Colors.blue,
               child: Icon(
@@ -47,13 +56,35 @@ class _ProfilePageState extends State<ProfilePage> {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 20),
-            // Tampilkan Username
+            const SizedBox(height: 20),
             Text(
               _username,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                onPressed: _logout,
+                child: const Center(
+                  child: Text(
+                    'Logout',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

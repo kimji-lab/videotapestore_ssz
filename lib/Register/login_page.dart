@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:flutter_sign_page/Register/signup_page.dart';
-import 'package:flutter_sign_page/Home/home_page.dart';
+import 'package:flutter_sign_page/MainPage/main_page.dart';
 import 'package:flutter_sign_page/Register/extra.dart';
 
 class LoginPage extends StatefulWidget {
@@ -31,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/user/signin'),
+        Uri.parse('http://localhost:3000/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'username': _usernameController.text,
@@ -43,13 +43,18 @@ class _LoginPageState extends State<LoginPage> {
         final data = jsonDecode(response.body);
         String token = data['token'];
         String role = data['role'];
+        String username = data['username'];
 
+        await storage.write(key: 'username', value: username);
         await storage.write(key: 'jwt_token', value: token);
         await storage.write(key: 'role', value: role);
 
-        Navigator.pushReplacement(
+        Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(
+            builder: (context) => MainPage(
+            ),
+          ),
         );
       } else {
         final data = jsonDecode(response.body);

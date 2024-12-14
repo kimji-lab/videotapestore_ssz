@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_sign_page/MainPage/main_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-import 'package:flutter_sign_page/Home/home_page.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -28,7 +27,7 @@ class _SignUpState extends State<SignUp> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/user/signup'),
+        Uri.parse('http://localhost:3000/signup'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'username': _usernameController.text,
@@ -44,7 +43,7 @@ class _SignUpState extends State<SignUp> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(builder: (context) => MainPage()),
         );
       } else {
         final data = jsonDecode(response.body);
@@ -165,7 +164,7 @@ class _SignUpState extends State<SignUp> {
                 const SizedBox(height: 40),
                 GestureDetector(
                   onTap:
-                      _isLoading ? null : _signUp, // Nonaktifkan saat loading
+                      _isLoading ? null : _signUp,
                   child: Container(
                     padding: const EdgeInsets.all(15),
                     margin: const EdgeInsets.symmetric(horizontal: 25),
