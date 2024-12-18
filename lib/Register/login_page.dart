@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -15,9 +15,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final storage = const FlutterSecureStorage();
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
   bool _isLoading = false;
@@ -29,31 +28,41 @@ class _LoginPageState extends State<LoginPage> {
       _errorMessage = null;
     });
 
+    if(usernameController.text.isEmpty || passwordController.text.isEmpty) {
+      setState(() {
+        _errorMessage = 'Username dan Password harus diisi';
+      });
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
     try {
       final response = await http.post(
         Uri.parse('http://localhost:3000/signin'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'username': _usernameController.text,
-          'password': _passwordController.text,
+          'username': usernameController.text,
+          'password': passwordController.text,
         }),
       );
 
-      if (response.statusCode == 200) {
+      if(response.statusCode == 200) {
         final data = jsonDecode(response.body);
         String token = data['token'];
         String role = data['role'];
         String username = data['username'];
 
-        await storage.write(key: 'username', value: username);
-        await storage.write(key: 'jwt_token', value: token);
-        await storage.write(key: 'role', value: role);
+        final storage = await SharedPreferences.getInstance();
+        await storage.setString('username', username);
+        await storage.setString('jwt_token', token);
+        await storage.setString('role', role);
 
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MainPage(
-            ),
+            builder: (context) => MainPage(),
           ),
         );
       } else {
@@ -64,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Server belum aktif';
+        _errorMessage = 'Server belum nyala';
       });
     } finally {
       setState(() {
@@ -77,7 +86,6 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Sign In"),
         backgroundColor: Colors.white,
       ),
       backgroundColor: Colors.white,
@@ -106,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: TextField(
-                    controller: _usernameController,
+                    controller: usernameController,
                     decoration: InputDecoration(
                       labelText: "Username",
                       filled: true,
@@ -124,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: TextField(
-                    controller: _passwordController,
+                    controller: passwordController,
                     obscureText: !_isPasswordVisible,
                     decoration: InputDecoration(
                         labelText: "Password",

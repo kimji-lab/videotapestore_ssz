@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_sign_page/Register/login_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -8,7 +8,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final storage = const FlutterSecureStorage();
   String _username = '';
 
   @override
@@ -18,18 +17,20 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _loadUserData() async {
-    String? username = await storage.read(key: 'username');
+    final storage = await SharedPreferences.getInstance();
+    String? username = storage.getString('username');
     setState(() {
       _username = username ?? 'Guest';
     });
   }
 
   Future<void> _logout() async {
-    await storage.deleteAll(); // Hapus semua data tersimpan
+    final storage = await SharedPreferences.getInstance();
+    await storage.clear();
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),
-      (route) => false, // Menghapus semua riwayat navigasi
+      (route) => false,
     );
   }
 
@@ -38,15 +39,15 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile Page'),
-        backgroundColor: Colors.white,
+        titleTextStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+        backgroundColor: Colors.blue,
       ),
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
-          mainAxisSize: MainAxisSize.min, // Supaya kolom pas di tengah
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Gambar Profil
             const CircleAvatar(
               radius: 50,
               backgroundColor: Colors.blue,

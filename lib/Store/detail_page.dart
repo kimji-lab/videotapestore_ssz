@@ -17,7 +17,7 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   bool isDescriptionExpanded = false;
-  bool _isWishlisted = false;  //untuk membuat tombol wishlist nya jadi merah saat dipencet
+  bool _isWishlisted = false;  //buat membuat tombol wishlist nya jadi merah saat dipencet
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class _DetailPageState extends State<DetailPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -36,21 +36,21 @@ class _DetailPageState extends State<DetailPage> {
         actions: [
           IconButton(
             icon: Icon(
-              _isWishlisted ? Icons.favorite : Icons.favorite_border, // Ganti ikon berdasarkan status
-              color: _isWishlisted ? Colors.red : Colors.black, // Ganti warna berdasarkan status
+              _isWishlisted ? Icons.favorite : Icons.favorite_border,
+              color: _isWishlisted ? Colors.red : Colors.black,
             ),
             onPressed: () {
               setState(() {
-                _isWishlisted = !_isWishlisted; // Toggle status
+                _isWishlisted = !_isWishlisted;
               });
               if (_isWishlisted) {
                 widget.addToWishlist(widget.tape);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${widget.tape['name']} added to wishlist')),
+                  SnackBar(content: Text('${widget.tape['name']} ditambah ke wishlist')),
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${widget.tape['name']} removed from wishlist')),
+                  SnackBar(content: Text('${widget.tape['name']} dihapus dari wishlist')),
                 );
               }
             },
@@ -62,7 +62,6 @@ class _DetailPageState extends State<DetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Gambar Produk
             Center(
               child: Image.network(
                 widget.tape['image'],
@@ -70,22 +69,19 @@ class _DetailPageState extends State<DetailPage> {
                 fit: BoxFit.cover,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-            // Informasi Produk
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Nama Barang
                   Text(
                     widget.tape['name'],
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
 
-                  // Genre dan Level
                   Row(
                     children: [
                       Text(
@@ -93,37 +89,34 @@ class _DetailPageState extends State<DetailPage> {
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey[700],
-                          backgroundColor: Colors.grey[300]
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       Text(
                         'Level: ${widget.tape['level']}',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey[700],
-                            backgroundColor: Colors.grey[300]
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   // Harga
                   Text(
                     '${widget.tape['price']}',
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontSize: 25,
                         fontWeight: FontWeight.bold,
                         color: Colors.black
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-                  // Deskripsi
                   Text(
                     isDescriptionExpanded
                         ? widget.tape['description']
-                        : '${widget.tape['description'].substring(0, 50)}...', // Potong teks jika tidak diperluas
+                        : '${widget.tape['description'].substring(0, 50)}...', 
                     style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                   ),
                   GestureDetector(
@@ -134,17 +127,16 @@ class _DetailPageState extends State<DetailPage> {
                     },
                     child: Text(
                       isDescriptionExpanded ? 'Show less' : 'Read more',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-                  // Tombol Add to Cart
                   Center(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 120),
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 120),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -152,10 +144,10 @@ class _DetailPageState extends State<DetailPage> {
                       onPressed: () {
                         widget.addToCart(widget.tape);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('${widget.tape['name']} added to cart!')),
+                          SnackBar(content: Text('${widget.tape['name']} ditambah ke cart!')),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'Add to Cart',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                       ),

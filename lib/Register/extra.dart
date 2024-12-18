@@ -6,7 +6,7 @@ class GoogleAuth {
   static void googleSignIn() async {
     final GoogleSignInAccount? acc = await _OAUTH.signIn();
 
-    if (acc != null) {
+    if(acc != null) {
       print('Logged in Email: ${acc.email}');
     }
   }

@@ -14,19 +14,19 @@ class _WishlistPageState extends State<WishlistPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Wishlist'),
+        title: const Text('Wishlist'),
         backgroundColor: Colors.blue,
-        titleTextStyle: TextStyle(
+        titleTextStyle: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 30
+            fontSize: 24
         ),
         centerTitle: true,
       ),
       backgroundColor: Colors.white,
       body: widget.wishlist.isEmpty
-          ? Center(
+          ? const Center(
               child: Text(
-                'You not have wishlist yet',
+                'Belum ada wishlist',
                 style: TextStyle(fontSize: 18, color: Colors.grey),
               ),
           )
@@ -37,6 +37,7 @@ class _WishlistPageState extends State<WishlistPage> {
               itemBuilder: (context, index) {
                 final item = widget.wishlist[index];
                 return Card(
+                  color: Colors.white,
                   margin: const EdgeInsets.symmetric(vertical: 6.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -53,7 +54,7 @@ class _WishlistPageState extends State<WishlistPage> {
                     ),
                     title: Text(
                       item['name'],
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
@@ -61,21 +62,21 @@ class _WishlistPageState extends State<WishlistPage> {
                     ),
                     subtitle: Text(
                       item['price'],
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     trailing: IconButton(
-                      icon: Icon(Icons.favorite, color: Colors.red),
+                      icon: const Icon(Icons.favorite, color: Colors.red),
                       onPressed: () {
                         setState(() {
                           widget.wishlist.removeAt(index);
                         });
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('${item['name']} remove from wishlist!'),
+                            content: Text('${item['name']} dihapus dari wishlist!'),
                           ),
                         );
                       },

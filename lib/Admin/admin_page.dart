@@ -1,116 +1,190 @@
+import 'dart:async';
+import 'dart:io'; // masih error ya ges, keknya gabisa difix deh
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 class AdminPage extends StatefulWidget {
-  final Function(Map<String, dynamic>) onCreate;
-
-  AdminPage({required this.onCreate});
+  const AdminPage({super.key});
 
   @override
-  _AdminPageState createState() => _AdminPageState();
+  State<AdminPage> createState() => _AdminPageState();
 }
 
 class _AdminPageState extends State<AdminPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _videoTapeIdController = TextEditingController();
-  final _titleController = TextEditingController();
-  final _priceController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _genreIdController = TextEditingController();
-  final _tapeLevelController = TextEditingController();
-  final _imagePathController = TextEditingController();
+  var videoTapeId = TextEditingController();
+  var title = TextEditingController();
+  var price = TextEditingController();
+  var description = TextEditingController();
+  var genreId = TextEditingController();
+  var tapeLevel = TextEditingController();
 
-  void _createTape() {
-    if (_formKey.currentState!.validate()) {
-      final newTape = {
-        'videoTapeId': _videoTapeIdController.text,
-        'name': _titleController.text,
-        'price': _priceController.text,
-        'description': _descriptionController.text,
-        'genreId': _genreIdController.text,
-        'level': _tapeLevelController.text,
-        'image': _imagePathController.text,
-      };
+  File? _imageFile;
+  bool isLoading = false;
 
-      widget.onCreate(newTape);
+  Future<void> _pickImage() async {
+    if(isLoading) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('VideoTape created successfully!')),
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      final picker = ImagePicker();
+      final XFile? pickedImage = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
       );
 
-      Navigator.pop(context); // Kembali ke StorePage
+      if(!mounted) return;
+
+      if(pickedImage != null) {
+        final file = File(pickedImage.path);
+        setState(() {
+          _imageFile = file;
+        });
+      }
+    } catch (e) {
+      if(mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error image: $e')),
+        );
+      }
+    } finally {
+      if(mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _submitForm() async {
+    try {
+      if(_imageFile == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image harus dipilih')),
+        );
+        return;
+      }
+
+      setState(() {
+        isLoading = true;
+      });
+
+      var uri = Uri.parse('http://localhost:3000/api/videotapes/create');
+      var request = http.MultipartRequest('POST', uri);
+
+      request.fields['videoTapeId'] = videoTapeId.text;
+      request.fields['title'] = title.text;
+      request.fields['price'] = price.text;
+      request.fields['description'] = description.text;
+      request.fields['genreId'] = genreId.text;
+      request.fields['tapeLevel'] = tapeLevel.text;
+
+      var stream = http.ByteStream(_imageFile!.openRead());
+      var length = await _imageFile!.length();
+      
+      var multipartFile = http.MultipartFile(
+        'image',
+        stream,
+        length,
+        filename: _imageFile!.path.split('/').last
+      );
+      
+      request.files.add(multipartFile);
+
+      var response = await request.send();
+      var responseData = await response.stream.bytesToString();
+
+      if(response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Videotape berhasil ditambahkan')),
+        );
+        setState(() {
+          videoTapeId.clear();
+          title.clear();
+          price.clear();
+          description.clear();
+          genreId.clear();
+          tapeLevel.clear();
+          _imageFile = null;
+        });
+        Navigator.pop(context);
+      } else {
+        var error = json.decode(responseData);
+        if(error['message'].contains('Duplicate entry')) {
+          throw Exception('VideoTape ID sudah digunakan');
+        } else {
+          throw Exception('Gagal, status: ${response.statusCode}');
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Page'),
-        backgroundColor: Colors.blue,
-      ),
+      backgroundColor: Colors.white,
+      appBar: AppBar(title: const Text('Admin Page'),
+      backgroundColor: Colors.white,),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                controller: _videoTapeIdController,
-                decoration: const InputDecoration(labelText: 'VideoTape ID'),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter VideoTape ID'
-                    : null,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+                controller: videoTapeId,
+                decoration: const InputDecoration(labelText: 'VideoTape Id')),
+            TextField(
+                controller: title,
+                decoration: const InputDecoration(labelText: 'Title')),
+            TextField(
+                controller: price,
+                decoration: const InputDecoration(labelText: 'Price')),
+            TextField(
+                controller: description,
+                decoration: const InputDecoration(labelText: 'Description')),
+            TextField(
+                controller: genreId,
+                decoration: const InputDecoration(labelText: 'Genre ID')),
+            TextField(
+                controller: tapeLevel,
+                decoration: const InputDecoration(labelText: 'Tape Level')),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: _pickImage,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white
               ),
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter title'
-                    : null,
-              ),
-              TextFormField(
-                controller: _priceController,
-                decoration: const InputDecoration(labelText: 'Price'),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter price'
-                    : null,
-              ),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter description'
-                    : null,
-              ),
-              TextFormField(
-                controller: _genreIdController,
-                decoration: const InputDecoration(labelText: 'Genre ID'),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter genre ID'
-                    : null,
-              ),
-              TextFormField(
-                controller: _tapeLevelController,
-                decoration: const InputDecoration(labelText: 'Tape Level'),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter tape level'
-                    : null,
-              ),
-              TextFormField(
-                controller: _imagePathController,
-                decoration: const InputDecoration(labelText: 'Image Path'),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter image path'
-                    : null,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _createTape,
-                child: const Text('Create'),
-              ),
+              child: const Text('Pilih Gambar',),
+            ),
+            if (_imageFile != null) ...[
+              const SizedBox(height: 10),
+              Image.file(_imageFile!),
             ],
-          ),
+            const SizedBox(height: 20),
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ElevatedButton(
+                    onPressed: _submitForm,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white
+                    ),
+                    child: const Text('Insert'),
+                  ),
+          ],
         ),
       ),
     );

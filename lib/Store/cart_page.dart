@@ -12,14 +12,13 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
-    // Menghitung total harga
     double totalPrice = widget.cart.fold(
         0, (sum, item) => sum + double.parse(item['price'].replaceAll('\$', '')));
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cart'),
-        titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+        title: const Text('Cart'),
+        titleTextStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
         centerTitle: true,
         backgroundColor: Colors.blue,
       ),
@@ -34,8 +33,9 @@ class _CartPageState extends State<CartPage> {
                 itemBuilder: (context, index) {
                   final item = widget.cart[index];
                   return Card(
+                    color: Colors.white,
                     margin:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     elevation: 3,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -52,7 +52,7 @@ class _CartPageState extends State<CartPage> {
                       ),
                       title: Text(
                         item['name']!,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           color: Colors.black87,
@@ -66,7 +66,7 @@ class _CartPageState extends State<CartPage> {
                         ),
                       ),
                       trailing: IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
+                        icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () {
                           setState(() {
                             widget.cart.removeAt(index);
@@ -74,7 +74,7 @@ class _CartPageState extends State<CartPage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                  '${item['name']} removed from cart!'),
+                                  '${item['name']} dihapus dari cart!'),
                             ),
                           );
                         },
@@ -84,12 +84,11 @@ class _CartPageState extends State<CartPage> {
                 },
               ),
             ),
-            // Total Harga
             Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.blue[50],
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
                 ),
@@ -99,7 +98,7 @@ class _CartPageState extends State<CartPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Total Price:',
                         style: TextStyle(
                           fontSize: 18,
@@ -117,10 +116,10 @@ class _CartPageState extends State<CartPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         vertical: 14, horizontal: 120
                       ),
                       backgroundColor: Colors.blue[800],
@@ -130,10 +129,10 @@ class _CartPageState extends State<CartPage> {
                     ),
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Checkout complete!')),
+                        const SnackBar(content: Text('Checkout berhasil!')),
                       );
                     },
-                    label: Text(
+                    label: const Text(
                       'Checkout',
                       style: TextStyle(
                         fontSize: 18,
@@ -150,7 +149,6 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  // Tampilan untuk keranjang kosong
   Widget _buildEmptyCart() {
     return Center(
       child: Column(
@@ -161,33 +159,33 @@ class _CartPageState extends State<CartPage> {
             size: 120,
             color: Colors.grey[400],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
-            'Your cart is empty!',
+            'Cart kosong!',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
               color: Colors.grey[600],
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
-            'Start adding items to your cart now.',
+            'Tambahkan videotape ke cart',
             style: TextStyle(fontSize: 16, color: Colors.grey[500]),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               padding:
-              EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              backgroundColor: Colors.blue[800],
+              const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              backgroundColor: Colors.blue,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
             onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Back to Store',
+            child: const Text(
+              'Balik ke store',
               style: TextStyle(fontSize: 16, color: Colors.white),
             ),
           ),

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_sign_page/Profile/profile_page.dart';
 import 'package:flutter_sign_page/Store/store_page.dart';
 import 'package:flutter_sign_page/Wishlist/wishlist_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MainPage extends StatefulWidget {
   @override
@@ -13,70 +15,105 @@ class MainPage extends StatefulWidget {
 class MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   final List<Map<String, dynamic>> _wishlist = [];
-  final List<Widget> _pages = [];
+  List<Widget> _pages = [];
   String userRole = '';
-  final storage = const FlutterSecureStorage();
+  List<Map<String, dynamic>> _videotapes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _initializePages();
+    _fetchVideotapes();
+  }
+
+  Future<void> _fetchVideotapes() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://localhost:3000/api/videotapes'),
+      );
+
+      if(response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          _videotapes = data
+              .map((item) => {
+                    'videoTapeId': item['videoTapeId'],
+                    'title': item['title'],
+                    'price': item['price'],
+                    'description': item['description'],
+                    'genreId': item['genreId'],
+                    'tapeLevel': item['tapeLevel'],
+                    'imagePath': 'http://localhost:3000/${item['imagePath']}',
+                  })
+              .toList();
+        });
+      }
+    } catch (e) {
+      print('Error mengambil videotape: $e');
+    }
+  }
 
   void _addToWishlist(Map<String, dynamic> item) {
     setState(() {
-      if (!_wishlist
+      if(!_wishlist
           .any((element) => element['videoTapeId'] == item['videoTapeId'])) {
-        _wishlist.add(item); // Tambahkan item jika belum ada di wishlist
+        _wishlist.add(item);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${item['name']} added to wishlist!')),
+          SnackBar(content: Text('${item['title']} ditambah ke wishlist!')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${item['name']} is already in wishlist!')),
+          SnackBar(content: Text('${item['title']} sudah ada di wishlist!')),
         );
       }
     });
   }
 
- @override
-  void initState() {
-    super.initState();
-    _initializePages();
-  }
-
   Future<void> _initializePages() async {
-    // Membaca role dari FlutterSecureStorage
-    String? role = await storage.read(key: 'role');
-    setState(() {
-      userRole = role ?? '';
-      _pages.addAll([
-        StorePage(
-          addToWishlist: _addToWishlist,
-          wishlist: _wishlist,
-          userRole: userRole,
-        ), // halaman store
-        WishlistPage(wishlist: _wishlist), // halaman wishlist
-        ProfilePage(), // halaman profile
-      ]);
-    });
+    try {
+      final storage = await SharedPreferences.getInstance();
+      String? role = storage.getString('role');
+
+      setState(() {
+        userRole = role ?? '';
+      });
+
+      await _fetchVideotapes();
+
+      setState(() {
+        _pages = [
+          StorePage(
+            addToWishlist: _addToWishlist,
+            wishlist: _wishlist,
+            userRole: userRole,
+            videotapes: _videotapes,
+          ),
+          WishlistPage(wishlist: _wishlist),
+          ProfilePage(),
+        ];
+      });
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: _pages.isNotEmpty
+          ? _pages[_selectedIndex]
+          : const Center(child: CircularProgressIndicator()),
       bottomNavigationBar: CurvedNavigationBar(
-        //tampilan bottom navigation bar
         backgroundColor: Colors.white,
         color: Colors.blue,
         buttonBackgroundColor: Colors.blue,
         height: 60,
-        animationDuration: Duration(milliseconds: 300),
-
-        //Icon bottom navigation bar
-        index: _selectedIndex,
-        items: <Widget>[
+        animationDuration: const Duration(milliseconds: 300),
+        items: const <Widget>[
           Icon(Icons.store, size: 30, color: Colors.white),
           Icon(Icons.favorite, size: 30, color: Colors.white),
           Icon(Icons.person, size: 30, color: Colors.white),
         ],
-
-        //perintah sentuh modifikasi curved_navigation_bar
         onTap: (index) {
           setState(() {
             _selectedIndex = index;

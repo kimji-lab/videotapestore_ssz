@@ -11,32 +11,44 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
   bool _isLoading = false;
   String? _errorMessage;
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
   Future<void> _signUp() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    if(usernameController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        passwordController.text.isEmpty) {
+      setState(() {
+        _errorMessage = 'Semua harus diisi';
+      });
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
 
     try {
       final response = await http.post(
         Uri.parse('http://localhost:3000/signup'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'username': _usernameController.text,
-          'email': _emailController.text,
-          'password': _passwordController.text,
+          'username': usernameController.text,
+          'email': emailController.text,
+          'password': passwordController.text,
         }),
       );
 
-      if (response.statusCode == 201) {
+      if(response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Pendaftaran berhasil!')),
         );
@@ -53,7 +65,7 @@ class _SignUpState extends State<SignUp> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Gagal terhubung ke server. Pastikan backend berjalan.';
+        _errorMessage = 'Server belum nyala';
       });
     } finally {
       setState(() {
@@ -66,7 +78,6 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign Up'),
         backgroundColor: Colors.white,
       ),
       backgroundColor: Colors.white,
@@ -97,7 +108,7 @@ class _SignUpState extends State<SignUp> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: TextField(
-                    controller: _usernameController,
+                    controller: usernameController,
                     decoration: InputDecoration(
                       labelText: "Username",
                       filled: true,
@@ -117,7 +128,7 @@ class _SignUpState extends State<SignUp> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: TextField(
-                    controller: _emailController,
+                    controller: emailController,
                     decoration: InputDecoration(
                       labelText: "Email",
                       filled: true,
@@ -137,7 +148,7 @@ class _SignUpState extends State<SignUp> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: TextField(
-                    controller: _passwordController,
+                    controller: passwordController,
                     obscureText: !_isPasswordVisible,
                     decoration: InputDecoration(
                         labelText: "Password",
@@ -163,13 +174,13 @@ class _SignUpState extends State<SignUp> {
                 ),
                 const SizedBox(height: 40),
                 GestureDetector(
-                  onTap:
-                      _isLoading ? null : _signUp,
+                  onTap: _isLoading ? null : _signUp,
                   child: Container(
                     padding: const EdgeInsets.all(15),
                     margin: const EdgeInsets.symmetric(horizontal: 25),
                     decoration: BoxDecoration(
-                        color: _isLoading ? Colors.grey : const Color(0xFF0166FF),
+                        color:
+                            _isLoading ? Colors.grey : const Color(0xFF0166FF),
                         borderRadius: BorderRadius.circular(20)),
                     child: Center(
                       child: _isLoading
@@ -182,6 +193,14 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ),
                 const SizedBox(height: 40),
+                if(_errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: Text(
+                      _errorMessage!,
+                      style: const TextStyle(color: Colors.red, fontSize: 14),
+                    ),
+                  ),
               ],
             ),
           ),
